@@ -1,5 +1,5 @@
 import {render,html} from '../../node_modules/lit-html/lit-html.js'
-import { gameDetails } from '../api/gamesData.js'
+import { gameDetails,addComment, getComments } from '../api/gamesData.js'
 const main=document.querySelector('#main-content')
 
 const detailsTemplate=(game,user,submitHandler)=>html`<!--Details Page-->
@@ -10,7 +10,7 @@ const detailsTemplate=(game,user,submitHandler)=>html`<!--Details Page-->
         <div class="game-header">
             <img class="game-img" src="../..${game.imageUrl}" />
             <h1>${game.title}</h1>
-            <span class="levels">MaxLevel: 4</span>
+            <span class="levels">MaxLevel: ${game.maxLevel}</span>
             <p class="type">Action, Crime, Fantasy</p>
         </div>
 
@@ -33,8 +33,8 @@ const detailsTemplate=(game,user,submitHandler)=>html`<!--Details Page-->
 
         <!-- Edit/Delete buttons ( Only for creator of this game )  -->
         ${user._id==game._ownerId?html`<div class="buttons">
-            <a href="#" class="button">Edit</a>
-            <a href="#" class="button">Delete</a>
+            <a href="/allGames/${game._id}/edit" class="button">Edit</a>
+            <a href="/allGames/${game._id}/delete" class="button">Delete</a>
         </div>`:html`<article class="create-comment">
         <label>Add new comment:</label>
         <form class="form" @submit="${submitHandler}">
@@ -51,15 +51,20 @@ const detailsTemplate=(game,user,submitHandler)=>html`<!--Details Page-->
 
 </section>`
 export const detailsView=async(ctx)=>{
-    const submitHandler=(e)=>{
-        e.preventDefault()
-        let formData=Object.fromEntries(new FormData(e.target))
-    console.log(formData)
-
-    }
+    
+        const submitHandler=(e)=>{
+            e.preventDefault();
+            let formData=Object.fromEntries(new FormData(e.target));
+            let id=Object.values(ctx.params)[0]
+            let data=Object.values(formData)[0]
+           data.length<1?alert('Fill the comments section,you bastard!'):addComment(id,data)
+           .then(()=> getComments(Object.values(ctx.params)[0]))
+           // ; console.log()
+            }
   
      let res=await gameDetails(Object.values(ctx.params)[0])
-      console.log(res)
+    
+     //let comments=await console.log(comments)
     let template=detailsTemplate(res,ctx.user,submitHandler)
     render(template,main)
 }
