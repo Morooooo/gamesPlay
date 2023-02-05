@@ -32,15 +32,19 @@ export const createView=(ctx)=>{
     const submitHandler=(e)=>{
         e.preventDefault()
         const formData =Object.fromEntries(new FormData(e.target))
-        // console.log(typeof formData)
-    Object.values(formData).some(x=>{x.length<1?alert('Fill all fields'):
-    createGame(formData).then(()=>ctx.page.redirect('/'))  })
+       console.log( formData)
+        /* Object.values(formData).some(x=>{ x.length<1?alert('Fill all fields')
+        :createGame(formData).}) */
       
-        
-      
-        
+       if(formData.title==''||formData.category==''||formData.maxLevel==''
+       ||formData.imageUrl==''||formData.summary=='') {
+       return alert('Fill all fields,you wanker!').then(()=>ctx.page.redirect('/'))
     }
-    let form=createForm(submitHandler)
+    createGame(formData)
+    ctx.page.redirect(`/`) 
+        }
+        let form=createForm(submitHandler)
 
     render(form,main)
-}
+    }
+    
